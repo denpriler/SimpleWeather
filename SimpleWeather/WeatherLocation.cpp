@@ -1,5 +1,7 @@
 #include "WeatherLocation.h"
 
+using json = nlohmann::json;
+
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -7,7 +9,11 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 }
 
 WeatherLocation::WeatherLocation(float latitude, float longitude)
-	: latitude(latitude), longitude(longitude), curl_res(CURLE_OK)
+	: latitude(latitude),
+    longitude(longitude),
+    curl_res(CURLE_OK),
+    temperature(0),
+    wind_speed(0)
 {
     this->curl = curl_easy_init();
     _ASSERT(this->curl);
@@ -31,14 +37,25 @@ WeatherLocation::~WeatherLocation()
 void WeatherLocation::GetCurrentWeather()
 {    
     this->curl_res = curl_easy_perform(this->curl);
+    if (this->curl_res == CURLE_OK) {
+        json data = json::parse(this->curl_buffer);
+
+        if (data.contains("error")) {
+            std::cerr << data.at("reason") << std::endl;
+            return;
+        }
+
+        this->temperature = data.at("current").at("temperature_2m");
+        this->wind_speed = data.at("current").at("wind_speed_10m");
+    }
 }
 
 void WeatherLocation::PrintWeatherString()
 {
     if (this->curl_res == CURLE_OK) {
-        std::cout << this->curl_buffer << std::endl;
+        std::cout << "Temperature - " << this->temperature << "°C, wind speed - " << this->wind_speed << "m/s" << std::endl;
     }
     else {
-        std::cout << "cURL result: " << this->curl_res << std::endl;
+        std::cerr << "cURL result: " << this->curl_res << std::endl;
     }
 }

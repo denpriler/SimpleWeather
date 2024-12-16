@@ -3,6 +3,7 @@
 #include <string>
 #include <curl/curl.h>
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 class WeatherLocation
 {
@@ -16,6 +17,8 @@ private:
 protected:
 	float latitude;
 	float longitude;
+	float temperature;
+	float wind_speed;
 
 public:
 	WeatherLocation(float latitude, float longitude);

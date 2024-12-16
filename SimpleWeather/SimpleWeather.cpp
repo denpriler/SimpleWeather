@@ -2,10 +2,18 @@
 //
 
 #include "WeatherLocation.h"
+#include <iostream>
 
 int main()
 {
-    WeatherLocation* london = new WeatherLocation(52.52, 13.41);
+    float latitude, longitude;
+
+    std::cout << "Latitude: ";
+    std::cin >> latitude;
+    std::cout << "Longitude: ";
+    std::cin >> longitude;
+
+    WeatherLocation* london = new WeatherLocation(latitude, longitude);
     london->GetCurrentWeather();
     london->PrintWeatherString();
 
